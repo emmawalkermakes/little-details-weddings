@@ -1,0 +1,44 @@
+---
+layout: page.njk
+title: Wedding personalisation checklist
+description: A tick-off checklist for personalised wedding details, from spelling checks to order deadlines. Saves in your browser.
+permalink: /checklist/
+---
+<p>Tick items off as you go. Your ticks are saved in this browser only (nothing is sent anywhere). Timings are general guides; your makers' lead times come first.</p>
+<div class="tool" id="cl">
+{%- set groups = [
+  ["Decide the basics", ["Agree how names appear (first names only, full names, initials)", "Decide the date format (e.g. 14.03.2027 or 14 March 2027)", "Choose 1–2 fonts and a colour palette", "Confirm guest numbers before ordering per-guest items", "Check venue rules on signage, candles, confetti and fixings"]],
+  ["4–6 months out", ["Shortlist makers and ask for current lead times", "Order large signage (welcome sign, seating chart frame)", "Decide on favours and test one in summer conditions", "Plan bridal party and parent thank-you gifts"]],
+  ["2–3 months out", ["Send final wording for signs to makers", "Collect RSVP names with correct spelling", "Order place cards or table name items", "Order personalised favours"]],
+  ["4–6 weeks out", ["Proof-read every name against the final RSVP list", "Have someone else proof-read too", "Approve all proofs in writing", "Confirm delivery dates and addresses"]],
+  ["Final fortnight", ["Sort place cards by table in labelled envelopes", "Pack a spares kit: blank cards, pen, tape, Blu Tack, scissors", "Assign someone to set up and pack down signs", "Plan shade and storage for heat-sensitive items"]]
+] %}
+{%- for g in groups %}
+  <h2>{{ g[0] }}</h2>
+  <ul style="list-style:none;padding:0">
+  {%- for item in g[1] %}
+    <li><label style="font-weight:400"><input type="checkbox" data-k="{{ loop.index }}-{{ g[0] | slugify }}" style="width:auto;margin-right:.5rem">{{ item }}</label></li>
+  {%- endfor %}
+  </ul>
+{%- endfor %}
+  <p id="progress" class="meta" aria-live="polite"></p>
+  <button type="button" id="reset">Clear all ticks</button>
+</div>
+<p>For ideas to go with the list, start with <a href="/posts/personalised-wedding-favours-queensland-summer/">personalised wedding favours that survive a Queensland summer</a>.</p>
+<script>
+(function () {
+  var key = "ldw-checklist", saved = {};
+  try { saved = JSON.parse(localStorage.getItem(key) || "{}"); } catch (e) {}
+  var boxes = Array.prototype.slice.call(document.querySelectorAll("#cl input[type=checkbox]"));
+  function update() {
+    var done = boxes.filter(function (b) { return b.checked; }).length;
+    document.getElementById("progress").textContent = done + " of " + boxes.length + " done";
+  }
+  boxes.forEach(function (b) {
+    b.checked = !!saved[b.dataset.k];
+    b.addEventListener("change", function () { saved[b.dataset.k] = b.checked; try { localStorage.setItem(key, JSON.stringify(saved)); } catch (e) {} update(); });
+  });
+  document.getElementById("reset").addEventListener("click", function () { saved = {}; boxes.forEach(function (b) { b.checked = false; }); try { localStorage.removeItem(key); } catch (e) {} update(); });
+  update();
+})();
+</script>
